@@ -23,6 +23,31 @@ import sys, os
 cwd = os.getcwd()
 project_root = os.path.dirname(cwd)
 
+
+# -- General configuration -----------------------------------------------------
+# Create Mock Modules to get around C dependencies on Read the Docs
+class Mock(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return Mock()
+
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()
+
+MOCK_MODULES = ['pandas.io.sql', 'pandas.tseries.offsets', 'matplotlib.pyplot ', 'tseries', 'offsets', 'tseries.offsets', 'io', 'sql', 'io.sql', 'pyplot', 'numpy', 'pandas', 'matplotlib', 'pytz']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = Mock()
+
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.
@@ -30,14 +55,14 @@ sys.path.insert(0, project_root)
 
 import {{ cookiecutter.repo_name }}
 
-# -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'numpydoc',
+              'sphinx.ext.pngmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

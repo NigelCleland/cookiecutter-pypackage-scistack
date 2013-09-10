@@ -4,12 +4,14 @@ help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "lint - check style with flake8"
-	@echo "test - run tests quickly with the default Python"
+	@echo "test - run tests quickly with the py.test"
 	@echo "testall - run tests on every Python version with tox"
 	@echo "coverage - check code coverage quickly with the default Python"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
+	@echo "mkenv - Create a Virtual Environment and install basic packages"
+	@echo "cenv - Change to the virtual environment"
 
 clean: clean-build clean-pyc
 
@@ -24,10 +26,18 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 {{ cookiecutter.repo_name }} tests
+	flake8 {{ cookiecutter.repo_name }} tests > {{ cookiecutter.repo_name }}_lint.txt
+
+mkenv:
+	mkvirtualenv {{ cookiecutter.repo_name }}
+	workon {{ cookiecutter.repo_name }}
+	pip install -r requirements.txt
+
+cenv:
+	workon {{ cookiecutter.repo_name }}
 
 test:
-	python setup.py test
+	py.test {{ cookiecutter.repo_name }}
 
 test-all:
 	tox
